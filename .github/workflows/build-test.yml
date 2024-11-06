@@ -7,12 +7,17 @@ on:
   pull_request:
     branches:
       - main
+  workflow_run:
+    workflows: [ "Check formatting, linting" ]
+    types: [ completed ]
 
 jobs:
-  build:
+  on-success:
     runs-on: ubuntu-latest
-
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
+      - run: echo "Formatting/Linting workflow was a success :-)"
+
       - name: Check out repository
         uses: actions/checkout@v4
 
@@ -29,9 +34,15 @@ jobs:
         with:
             compose-file: ./docker-compose.yaml
             up-flags: -d
-
+  test:
       - name: Run test for empty array scenario
         run: npx playwright test tests/empty-array.test.ts
 
       - name: Run remaining tests
         run: npx playwright test tests/user-controller.test.ts
+
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - run: echo "Formatting/Linting workflow was a failure :-("
