@@ -1,4 +1,4 @@
-name: Check formatting, linting
+name: Formatting and Linting
 
 on:
   push:

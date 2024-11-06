@@ -1,15 +1,10 @@
 name: Build and Test
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
   workflow_run:
-    workflows: ["Check formatting, linting"]
-    types: [completed]
+    workflows: ["Formatting and Linting"]
+    types:
+      - completed
 
 jobs:
   on-success:
