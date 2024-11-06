@@ -10,8 +10,8 @@ jobs:
   on-success:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      build:
+    build:
+      steps:
         - run: echo "Formatting/Linting workflow was a success :-)"
 
         - name: Check out repository
@@ -30,7 +30,8 @@ jobs:
           with:
             compose-file: ./docker-compose.yaml
             up-flags: -d
-      test:
+    test:
+      steps:
         - name: Run test for empty array scenario
           run: npx playwright test tests/empty-array.test.ts
 
