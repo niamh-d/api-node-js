@@ -1,18 +1,18 @@
 name: Build and Test
 
 on:
-  workflow_run:
-    workflows: ["Formatting and Linting"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  on-success:
+  build:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - run: echo "Formatting/Linting workflow was a success :-)"
 
+    steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
@@ -35,9 +35,3 @@ jobs:
 
       - name: Run remaining tests
         run: npx playwright test tests/user-controller.test.ts
-
-  on-failure:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
-    steps:
-      - run: echo "Formatting/Linting workflow was a failure :-("
