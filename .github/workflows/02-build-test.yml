@@ -9,7 +9,7 @@ on:
       - main
   workflow_run:
     workflows: ["Check formatting, linting"]
-    types: [ completed ]
+    types: [completed]
 
 jobs:
   on-success:
