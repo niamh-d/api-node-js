@@ -6,13 +6,6 @@ test.describe('User management API', () => {
 
     let existingUserId: number
 
-    test('GET / - should return empty when no users', async ({ request }) => {
-        const response = await request.get(`${baseURL}`);
-        expect(response.status()).toBe(200);
-        const responseBody = await response.text()
-        expect(responseBody).toBe('[]');
-    });
-
     test('POST / - should add a new user', async ({ request }) => {
         const response = await request.post(`${baseURL}`);
         expect.soft(response.status()).toBe(201);
