@@ -41,4 +41,4 @@ jobs:
           up-flags: -d
 
       - name: Run tests
-        run: npm test:docker
+        run: npm run test:docker
