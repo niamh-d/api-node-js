@@ -1,4 +1,4 @@
-name: Formatting and Linting
+name: Linting, build, test
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  format-lint:
+  lint-build-test:
     runs-on: ubuntu-latest
 
     steps:
