@@ -40,8 +40,5 @@ jobs:
           compose-file: ./docker-compose.yaml
           up-flags: -d
 
-      - name: Run test for empty array scenario
-        run: npm run test:empty
-
-      - name: Run test
-        run: npm run test:others
+      - name: Run tests
+        run: npm test

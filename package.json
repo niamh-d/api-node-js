@@ -11,8 +11,8 @@
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "test": "npm run dev & npm run test:empty & npm run test:others",
-    "test:others": "npx playwright test",
-    "test:empty": "npx playwright tests/empty-array.test.ts",
+    "test:others": "npx playwright test tests/run-next",
+    "test:empty": "npx playwright test tests/empty-array.test.ts",
     "prepare": "husky"
   },
   "keywords": [],
