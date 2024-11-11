@@ -70,7 +70,7 @@ router.get('/order/:orderId', (req: Request, res: Response) => {
 router.delete('/order/:orderId', (req: Request, res: Response) => {
     console.log('Request received ...');
     console.log('request params', req.params);
-    console.log(`Deleting order with ID: ${req.params.id}`);
+    console.log(`Deleting order with ID: ${req.params.orderId}`);
     const orderInd = orders.findIndex(o => o.orderId === parseInt(req.params.orderId));
     if (orderInd !== -1) {
         const deletedOrder = orders.splice(orderInd, 1);
