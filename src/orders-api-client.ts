@@ -13,8 +13,8 @@ interface Order {
     orderStatus: string;
 }
 
-export default class ApiClient {
-    static instance: ApiClient | undefined
+export default class OrdersApiClient {
+    static instance: OrdersApiClient | undefined
     private request: APIRequestContext
     private orders: Order[] = []
     private customerId: number | undefined
@@ -60,6 +60,13 @@ export default class ApiClient {
         this.customerId = undefined
     }
 
+    private async deleteOrderById(orderId: number): Promise<void> {
+        const response = await this.request.delete(`${this.baseAddress}/${ordersEndpoint}/${orderId}`)
+        expect.soft(response.status()).toBe(StatusCodes.OK)
+        this.orders = this.orders.filter(o => o.orderId !== orderId)
+        await this.verifyOrders()
+    }
+
     // validate number of orders and order objects
 
     private async verifyOrders(): Promise<void> {
@@ -73,18 +80,18 @@ export default class ApiClient {
     // close instance
 
     private closeInstance(): void {
-        ApiClient.instance = undefined
+        OrdersApiClient.instance = undefined
     }
 
     // PUBLIC METHODS
 
     // creates OR returns an instance:
 
-    public static async getInstance(request: APIRequestContext): Promise<ApiClient> {
-        if (!ApiClient.instance) {
-            ApiClient.instance = new ApiClient(request)
+    public static async getInstance(request: APIRequestContext): Promise<OrdersApiClient> {
+        if (!OrdersApiClient.instance) {
+            OrdersApiClient.instance = new OrdersApiClient(request)
         }
-        return ApiClient.instance
+        return OrdersApiClient.instance
     }
 
     // resets = calls deletion of all orders for user and then deletes the user
@@ -110,11 +117,7 @@ export default class ApiClient {
         const ids = this.orders.map(o => o.orderId)
 
         for(let i = 0; i < ids.length; i++) {
-            await this.request.delete(`${this.baseAddress}/${ordersEndpoint}/order/${ids[i]}`)
+            await this.deleteOrderById(ids[i])
         }
-
-        this.orders = []
-
-        await this.verifyOrders()
     }
 }
