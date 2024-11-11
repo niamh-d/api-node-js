@@ -39,7 +39,6 @@ export default class ApiClient {
 
     public async createRandomCustomerObject(): Promise<number> {
         const response = await this.request.post(`${this.baseAddress}/${usersEndpoint}`)
-        console.log(response)
         expect.soft(response.status()).toBe(StatusCodes.CREATED)
         const user = await response.json()
         this.customerId = user.id
