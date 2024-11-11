@@ -3,7 +3,15 @@ import { StatusCodes } from 'http-status-codes'
 import { expect } from '@playwright/test'
 
 const baseURL = 'http://localhost:3000'
-const endpoint = 'users'
+const ordersEndpoint = 'orders'
+const usersEndpoint = 'users'
+
+interface Order {
+    orderId: number;
+    customerId: number;
+    orderCreateTime: string;
+    orderStatus: string;
+}
 
 interface User {
     id: number;
@@ -15,12 +23,13 @@ interface User {
 export default class ApiClient {
     static instance: ApiClient
     private request: APIRequestContext
-    private users: User[] = []
-    private address: string
+    private orders: Order[] = []
+    private customerId: number | undefined
+    private readonly baseAddress: string
 
     private constructor(request: APIRequestContext) {
         this.request = request
-        this.address = `${baseURL}/${endpoint}`
+        this.baseAddress = baseURL
     }
 
     public static async getInstance(request: APIRequestContext): Promise<ApiClient> {
@@ -30,31 +39,51 @@ export default class ApiClient {
         return ApiClient.instance
     }
 
-    public async deleteAllUsers(): Promise<void> {
-       const ids = this.users.map(u => u.id)
-
-        for(let i = 0; i < ids.length; i++) this.request.delete(`${this.address}/${ids[i]}`)
+    public async createRandomCustomerObject(): Promise<number> {
+        const response = await this.request.post(`${this.baseAddress}/${usersEndpoint}`)
+        expect.soft(response.status()).toBe(StatusCodes.CREATED)
+        const user = await response.json()
+        this.customerId = user.id
+        return this.customerId!
     }
 
-    private async createRandomUserObject(): Promise<void> {
-        const response = await this.request.post(this.address)
+    public async resetInstance(): Promise<void> {
+        await this.deleteAllOrders()
+        await this.deleteUserById()
+    }
+
+    private async deleteUserById(): Promise<void> {
+        await this.request.delete(`${this.baseAddress}/${usersEndpoint}/${this.customerId}`)
+    }
+
+    private async deleteAllOrders(): Promise<void> {
+       const ids = this.orders.map(o => o.orderId)
+
+        for(let i = 0; i < ids.length; i++) await this.request.delete(`${this.baseAddress}/${ordersEndpoint}/order/${ids[i]}`)
+    }
+
+    private async createRandomOrderObject(): Promise<void> {
+        const response = await this.request.post(`${this.baseAddress}/${ordersEndpoint}/new/${this.customerId}`)
         expect.soft(response.status()).toBe(StatusCodes.CREATED)
 
-        const user = await response.json()
-        this.users.push(user)
+        const order = await response.json()
+        this.orders.push(order)
     }
 
-    public async createUsersOfAmount(amount: number) {
-        for (let i = 0; i < amount; i++) {
-            await this.createRandomUserObject()
-        }
-        const response = await this.request.get(this.address)
+    private async getCustomersOrders(): Promise<Order[]> {
+        const response = await this.request.get(`${this.baseAddress}/${ordersEndpoint}/all/${this.customerId}`)
         expect.soft(response.status()).toBe(StatusCodes.OK)
+        return await response.json()
+    }
 
-        const actualUsers = await response.json()
-        const expectedUsers = this.users
+    public async createOrdersOfAmount(amount: number): Promise<void> {
+        for (let i = 0; i < amount; i++) {
+            await this.createRandomOrderObject()
+        }
+        const actualOrders = await this.getCustomersOrders()
+        const expectedOrders = this.orders
 
-        expect.soft(actualUsers).toHaveLength(expectedUsers.length)
-        expect.soft(actualUsers).toEqual(expectedUsers)
+        expect.soft(actualOrders).toHaveLength(expectedOrders.length)
+        expect.soft(actualOrders).toEqual(expectedOrders)
     }
 }
