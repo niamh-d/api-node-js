@@ -1,0 +1,47 @@
+name: Formatting and Linting
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  format-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Prettier check
+        run: |
+          echo "Running Prettier to check for formatting issues..."
+          npm run prettier:check
+
+      - name: Run ESLint check
+        run: |
+          echo "Running ESLint to check for linting issues..."
+          npm run lint
+
+      - name: Set up Docker Compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: ./docker-compose.yaml
+          up-flags: -d
+
+      - name: Run test for empty array scenario
+        run: npx playwright test tests/empty-array.test.ts
+
+      - name: Run remaining tests
+        run: npx playwright test tests/user-controller.test.ts
