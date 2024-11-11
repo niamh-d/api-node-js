@@ -37,7 +37,7 @@ export default class OrdersApiClient {
 
     // create:
 
-    public async createRandomCustomerObject(): Promise<number> {
+    public async createNewUser(): Promise<number> {
         const response = await this.request.post(`${this.baseAddress}/${usersEndpoint}`)
         expect.soft(response.status()).toBe(StatusCodes.CREATED)
         const user = await response.json()
@@ -54,17 +54,16 @@ export default class OrdersApiClient {
 
     // delete:
 
-    private async deleteUserById(): Promise<void> {
-        const response = await this.request.delete(`${this.baseAddress}/${usersEndpoint}/${this.customerId}`)
+    private async deleteUserById(id: number): Promise<void> {
+        const response = await this.request.delete(`${this.baseAddress}/${usersEndpoint}/${id}`)
         expect.soft(response.status()).toBe(StatusCodes.OK)
+        await this.verifyUserHasBeenDeleted()
         this.customerId = undefined
     }
 
     private async deleteOrderById(orderId: number): Promise<void> {
-        const response = await this.request.delete(`${this.baseAddress}/${ordersEndpoint}/${orderId}`)
+        const response = await this.request.delete(`${this.baseAddress}/${ordersEndpoint}/order/${orderId}`)
         expect.soft(response.status()).toBe(StatusCodes.OK)
-        this.orders = this.orders.filter(o => o.orderId !== orderId)
-        await this.verifyOrders()
     }
 
     // validate number of orders and order objects
@@ -75,6 +74,11 @@ export default class OrdersApiClient {
 
         expect.soft(actualOrders).toHaveLength(expectedOrders.length)
         expect.soft(actualOrders).toEqual(expectedOrders)
+    }
+
+    private async verifyUserHasBeenDeleted(): Promise<void> {
+        const response = await this.request.delete(`${this.baseAddress}/${usersEndpoint}/${this.customerId}`)
+        expect.soft(response.status()).toBe(StatusCodes.NOT_FOUND)
     }
 
     // close instance
@@ -97,8 +101,8 @@ export default class OrdersApiClient {
     // resets = calls deletion of all orders for user and then deletes the user
 
     public async resetInstance(): Promise<void> {
-        if(this.orders.length) await this.deleteAllOrders()
-        if(this.customerId) await this.deleteUserById()
+        if(this.orders.length) await this.deleteAllOrdersForUser()
+        if(this.customerId) await this.deleteUserById(this.customerId)
         this.closeInstance()
     }
 
@@ -111,13 +115,22 @@ export default class OrdersApiClient {
         await this.verifyOrders()
     }
 
+    // deletes user
+
+    public async deleteUserRecord():Promise<void> {
+        await this.deleteUserById(this.customerId!)
+    }
+
     // deletes all orders for instance's customer
 
-    public async deleteAllOrders(): Promise<void> {
+    public async deleteAllOrdersForUser(): Promise<void> {
         const ids = this.orders.map(o => o.orderId)
 
         for(let i = 0; i < ids.length; i++) {
             await this.deleteOrderById(ids[i])
         }
+        this.orders = []
+        await this.verifyOrders()
     }
+
 }

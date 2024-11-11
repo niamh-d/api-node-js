@@ -7,6 +7,7 @@ test.describe('Local server users tests using client', () => {
 
   test.beforeEach(async ({ request }) => {
     client = await UsersApiClient.getInstance(request)
+    await client.deleteAllUsers()
     numUsersToCreate = Math.floor(Math.random() * 10)
   })
 

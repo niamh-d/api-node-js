@@ -32,6 +32,10 @@ export default class UsersApiClient {
         return await response.json()
     }
 
+    private async setListOfUsers(): Promise<void> {
+        this.listOfUsers = await this.getAllUsers()
+    }
+
     // create user object
 
     public async createNewUser(): Promise<number> {
@@ -81,6 +85,7 @@ export default class UsersApiClient {
     // resets = calls deletion of all orders for user and then deletes the user
 
     public async resetInstance(): Promise<void> {
+
         if(this.listOfUsers.length) await this.deleteAllUsers()
         this.closeInstance()
     }
@@ -95,10 +100,11 @@ export default class UsersApiClient {
     }
 
     public async deleteAllUsers(): Promise<void> {
-        const ids = this.listOfUsers.map(u => u.id)
+        await this.setListOfUsers()
+        const allUserIds = this.listOfUsers.map(u => u.id)
 
-        for(let i = 0; i < ids.length; i++) {
-            await this.deleteUserById(ids[i])
+        for(let i = 0; i < allUserIds.length; i++) {
+            await this.deleteUserById(allUserIds[i])
         }
     }
 }

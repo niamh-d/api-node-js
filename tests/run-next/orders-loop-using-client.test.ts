@@ -8,7 +8,7 @@ test.describe('Local server order tests using client', () => {
 
   test.beforeEach(async ({ request }) => {
     client = await OrdersApiClient.getInstance(request)
-    customerId = await client.createRandomCustomerObject()
+    customerId = await client.createNewUser()
     expect.soft(customerId).toBeDefined()
     numOrdersToCreate = Math.floor(Math.random() * 10)
   })
@@ -22,6 +22,10 @@ test.describe('Local server order tests using client', () => {
   })
 
   test('Delete all orders for user', async () => {
-    await client.deleteAllOrders()
+    await client.deleteAllOrdersForUser()
+  })
+
+  test('Delete user record', async () => {
+    await client.deleteUserRecord()
   })
 })
