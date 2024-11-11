@@ -1,4 +1,4 @@
-name: Build and Test
+name: Formatting and Linting
 
 on:
   push:
@@ -9,20 +9,30 @@ on:
       - main
 
 jobs:
-  build:
+  format-lint:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Run Prettier check
+        run: |
+          echo "Running Prettier to check for formatting issues..."
+          npm run prettier:check
+
+      - name: Run ESLint check
+        run: |
+          echo "Running ESLint to check for linting issues..."
+          npm run lint
 
       - name: Set up Docker Compose
         uses: hoverkraft-tech/compose-action@v2.0.1
