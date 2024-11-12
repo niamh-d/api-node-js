@@ -1,0 +1,5 @@
+### GET all orders
+GET http://localhost:3000/orders
+
+### Create new order
+POST http://localhost:3000/orders/new/90

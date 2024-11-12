@@ -10,7 +10,10 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
-    "test": "npx playwright test",
+    "test": "npx playwright test tests/empty-array.test.ts tests/run-next",
+    "test:o": "npx playwright test tests/run-next",
+    "test:e": "npx playwright test tests/empty-array.test.ts",
+    "test:d": "npm run dev & npm test",
     "prepare": "husky"
   },
   "keywords": [],
